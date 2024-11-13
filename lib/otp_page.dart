@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'home_screen.dart';
+import 'home_page.dart';
 
-class OtpScreen extends StatefulWidget {
+class OtpPage extends StatefulWidget {
   final String mobileNumber;
 
-  const OtpScreen({super.key, required this.mobileNumber});
+  const OtpPage({super.key, required this.mobileNumber});
 
   @override
   // ignore: library_private_types_in_public_api
-  _OtpScreenState createState() => _OtpScreenState();
+  _OtpPageState createState() => _OtpPageState();
 }
 
-class _OtpScreenState extends State<OtpScreen> {
+class _OtpPageState extends State<OtpPage> {
   final TextEditingController _otpController = TextEditingController();
 
   Future<void> _verifyOtp() async {
@@ -54,10 +54,10 @@ class _OtpScreenState extends State<OtpScreen> {
           await prefs.setString('refresh_token', refreshToken);
 
           if (mounted) {
-            // Navigate to Home screen
+            // Navigate to Home page
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const HomeScreen()),
+              MaterialPageRoute(builder: (context) => const HomePage()),
             );
           }
         } else {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'splash_screen.dart';
+import 'splash_page.dart';
 
 void main() {
   runApp(const MainApp());
@@ -33,7 +33,7 @@ class MainApp extends StatelessWidget {
           child: child!,
         );
       },
-      home: const SplashScreen(),
+      home: const SplashPage(),
     );
   }
 }

@@ -1,22 +1,23 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'login_screen.dart';
+import 'package:foroshgahman_application/home_page.dart';
+import 'login_page.dart';
 
-class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
+class SplashPage extends StatefulWidget {
+  const SplashPage({super.key});
 
   @override
   // ignore: library_private_types_in_public_api
-  _SplashScreenState createState() => _SplashScreenState();
+  _SplashPageState createState() => _SplashPageState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     super.initState();
     Timer(const Duration(seconds: 2), () {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
+        MaterialPageRoute(builder: (context) => const LoginPage()),
       );
     });
   }

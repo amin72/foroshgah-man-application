@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'otp_screen.dart';
+import 'otp_page.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
   @override
   // ignore: library_private_types_in_public_api
-  _LoginScreenState createState() => _LoginScreenState();
+  _LoginPageState createState() => _LoginPageState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginPageState extends State<LoginPage> {
   final TextEditingController _mobileController = TextEditingController();
 
   Future<void> _requestOTP() async {
@@ -38,11 +38,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (response.statusCode == 200) {
         if (mounted) {
-          // On success, navigate to OTP screen
+          // On success, navigate to OTP page
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => OtpScreen(mobileNumber: mobileNumber),
+              builder: (context) => OtpPage(mobileNumber: mobileNumber),
             ),
           );
         }
