@@ -1,38 +1,78 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final List<Map<String, dynamic>> newest_shops = [
-      {"name": "فروشگاه اول", "address": "تهران، خیابان ولیعصر", "rating": 4.5},
-      {
-        "name": "فروشگاه دوم",
-        "address": "اصفهان، میدان نقش جهان",
-        "rating": 4.0
-      },
-      {"name": "فروشگاه سوم", "address": "شیراز، خیابان زند", "rating": 5.0},
-      {
-        "name": "فروشگاه چهارم",
-        "address": "مشهد، خیابان امام رضا",
-        "rating": 3.5
-      },
-      {"name": "فروشگاه پنجم", "address": "تبریز، خیابان امام", "rating": 4.2},
-      {
-        "name": "فروشگاه ششم",
-        "address": "کرج، بلوار شهید بهشتی",
-        "rating": 3.8
-      },
-      {"name": "فروشگاه هفتم", "address": "قم، خیابان صفاییه", "rating": 4.7},
-      {"name": "فروشگاه هشتم", "address": "رشت، خیابان مطهری", "rating": 4.3},
-    ];
+  State<HomePage> createState() => _HomePageState();
+}
 
+class _HomePageState extends State<HomePage> {
+  late Future<List<Map<String, dynamic>>> _shopsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _shopsFuture = _checkTokenAndFetchShops();
+  }
+
+  Future<List<Map<String, dynamic>>> _checkTokenAndFetchShops() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('access_token');
+
+    // Redirect to login if no token is found
+    if (token == null) {
+      Navigator.of(context).pushReplacementNamed('/login');
+      throw Exception('User not logged in');
+    }
+
+    // Token exists, fetch shops
+    return fetchShops(token);
+  }
+
+  Future<List<Map<String, dynamic>>> fetchShops(String token) async {
+    final url = Uri.parse('http://localhost:8101/v1/shop/home');
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data =
+            json.decode(utf8.decode(response.bodyBytes));
+
+        final List<dynamic> newestShops = data['newest'] ?? [];
+
+        return newestShops
+            .map((shop) => {
+                  "name": shop["name"] ?? "نامشخص",
+                  "address": shop["address"] ?? "آدرس موجود نیست",
+                  "rating": shop["rating"]?.toDouble() ?? 0.0,
+                })
+            .toList();
+      } else if (response.statusCode == 401) {
+        Navigator.of(context).pushReplacementNamed('/login');
+        throw Exception('Unauthorized');
+      } else {
+        throw Exception('Failed to load shops');
+      }
+    } catch (error) {
+      throw Exception('Error fetching shops: $error');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 0,
-        // title: const Text('خانه'),
-        // centerTitle: true,
+        title: const Text('خانه'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -41,20 +81,44 @@ class HomePage extends StatelessWidget {
           children: [
             const Text(
               "جدیدترین ها",
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                shadows: [
+                  Shadow(
+                    blurRadius: 5.0,
+                    color: Colors.grey,
+                    offset: Offset(1.5, 1.5),
+                  ),
+                ],
+              ),
               textAlign: TextAlign.right,
             ),
             const SizedBox(height: 16),
             Expanded(
-              child: ListView.builder(
-                itemCount: newest_shops.length,
-                itemBuilder: (context, index) {
-                  final shop = newest_shops[index];
-                  return ShopCard(
-                    name: shop["name"]!,
-                    address: shop["address"]!,
-                    rating: shop["rating"]!,
-                  );
+              child: FutureBuilder<List<Map<String, dynamic>>>(
+                future: _shopsFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Center(child: Text('No shops available.'));
+                  } else {
+                    final shops = snapshot.data!;
+                    return ListView.builder(
+                      itemCount: shops.length,
+                      itemBuilder: (context, index) {
+                        final shop = shops[index];
+                        return ShopCard(
+                          name: shop["name"]!,
+                          address: shop["address"]!,
+                          rating: shop["rating"]!,
+                        );
+                      },
+                    );
+                  }
                 },
               ),
             ),
@@ -88,9 +152,8 @@ class ShopCard extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Gray Box to replace the image with increased height
             Container(
-              height: 180, // Increased height for the gray box
+              height: 200, // Adjusted height for gray placeholder
               width: double.infinity,
               decoration: BoxDecoration(
                 color: Colors.grey[300],
@@ -98,27 +161,30 @@ class ShopCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-
-            // Shop Name centered
             Text(
               name,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
-
-            // Row with Rating on the right and Address on the left
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Address on the right side
-                Text(
-                  address,
-                  style: const TextStyle(fontSize: 14, color: Colors.grey),
-                  textAlign: TextAlign.right,
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.location_on,
+                      color: Colors.blue,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      address,
+                      style: const TextStyle(fontSize: 14, color: Colors.grey),
+                      textAlign: TextAlign.right,
+                    ),
+                  ],
                 ),
-
-                // Rating with Star Icon on the left side
                 Row(
                   children: [
                     const Icon(
