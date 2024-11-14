@@ -122,10 +122,12 @@ class _LoginPageState extends State<LoginPage> {
               TextField(
                 controller: _mobileController,
                 keyboardType: TextInputType.phone,
+                maxLength: 11,
                 decoration: const InputDecoration(
                   labelText: 'شماره موبایل',
                   border: OutlineInputBorder(),
                   hintText: '09123456789',
+                  counterText: '',
                 ),
               ),
               const SizedBox(height: 24),

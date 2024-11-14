@@ -118,10 +118,12 @@ class _OtpPageState extends State<OtpPage> {
               TextField(
                 controller: _otpController,
                 keyboardType: TextInputType.number,
+                maxLength: 6,
                 decoration: const InputDecoration(
                   labelText: 'کد تایید',
                   border: OutlineInputBorder(),
                   hintText: '123456',
+                  counterText: '', // Hides the default counter text
                 ),
               ),
               const SizedBox(height: 24),
