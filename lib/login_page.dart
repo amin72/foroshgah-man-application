@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'otp_page.dart';
 
@@ -13,6 +14,12 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _mobileController = TextEditingController();
+
+  // Save the token after login
+  Future<void> saveAccessToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('access_token', token);
+  }
 
   Future<void> _requestOTP() async {
     final mobileNumber = _mobileController.text;
@@ -44,6 +51,15 @@ class _LoginPageState extends State<LoginPage> {
             MaterialPageRoute(
               builder: (context) => OtpPage(mobileNumber: mobileNumber),
             ),
+          );
+        }
+      } else if (response.statusCode == 429) {
+        if (mounted) {
+          // Show error message if OTP request failed (429)
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text(
+                    'تعداد درخواست ها بیش از اندازه است. لطفا بعد از چند دقیقه مجدد امتحان کنید')),
           );
         }
       } else {
