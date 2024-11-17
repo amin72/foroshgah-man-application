@@ -61,6 +61,7 @@ class _ShopDetailsPageState extends State<ShopDetailsPage> {
                     color: Colors.grey[300],
                     child: const Center(child: Text('تصویر فروشگاه')),
                   ),
+
                   const SizedBox(height: 16),
 
                   // Shop name
@@ -72,14 +73,27 @@ class _ShopDetailsPageState extends State<ShopDetailsPage> {
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 16),
+
+                  const SizedBox(height: 24),
 
                   // Shop address
-                  Text(
-                    "آدرس: ${shopDetails!['address'] ?? 'نامشخص'}",
-                    style: const TextStyle(fontSize: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.location_on, color: Colors.green),
+                          const SizedBox(width: 4),
+                          Text(
+                            "آدرس: ${shopDetails!['address'] ?? 'نامشخص'}",
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 8),
+
+                  const SizedBox(height: 10),
 
                   // Rating
                   Row(
@@ -97,33 +111,82 @@ class _ShopDetailsPageState extends State<ShopDetailsPage> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+
+                  const SizedBox(height: 10),
 
                   // Mobile number
-                  Text(
-                    "شماره تماس: ${shopDetails!['mobile'] ?? 'نامشخص'}",
-                    style: const TextStyle(fontSize: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.phone_android, color: Colors.blue),
+                          const SizedBox(width: 4),
+                          Text(
+                            "شماره تماس: ${shopDetails!['mobile'] ?? 'نامشخص'}",
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 8),
+
+                  const SizedBox(height: 10),
 
                   // Is Physical
-                  Text(
-                    "فروشگاه حضوری: ${shopDetails!['is_physical'] ? 'بله' : 'خیر'}",
-                    style: const TextStyle(fontSize: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.storefront, color: Colors.purple),
+                          const SizedBox(width: 4),
+                          Text(
+                            "فروشگاه حضوری: ${shopDetails!['is_physical'] ? 'بله' : 'خیر'}",
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 8),
+
+                  const SizedBox(height: 10),
 
                   // Category
-                  Text(
-                    "دسته‌بندی: ${shopDetails!['category'] ?? 'نامشخص'}",
-                    style: const TextStyle(fontSize: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.category, color: Colors.teal),
+                          const SizedBox(width: 4),
+                          Text(
+                            "دسته‌بندی: ${shopDetails!['category'] ?? 'نامشخص'}",
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 8),
 
-                  // Date Joined (formatted as year/month/day)
-                  Text(
-                    "تاریخ پیوستن: ${_formatDate(shopDetails!['created_at'])}",
-                    style: const TextStyle(fontSize: 16),
+                  const SizedBox(height: 10),
+
+                  // Joined date
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.calendar_today,
+                              color: Colors.deepOrange),
+                          const SizedBox(width: 4),
+                          Text(
+                            "تاریخ پیوستن: ${_formatDate(shopDetails!['created_at'])}",
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
 
                   const SizedBox(height: 10), // Add more spacing

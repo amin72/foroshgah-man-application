@@ -188,7 +188,7 @@ class ShopCard extends StatelessWidget {
                   children: [
                     const Icon(
                       Icons.location_on,
-                      color: Colors.blue,
+                      color: Colors.green,
                       size: 20,
                     ),
                     const SizedBox(width: 4),
