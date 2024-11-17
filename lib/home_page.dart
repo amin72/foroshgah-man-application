@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:foroshgahman_application/shop_details.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -52,6 +53,7 @@ class _HomePageState extends State<HomePage> {
 
         return newestShops
             .map((shop) => {
+                  "id": shop["id"],
                   "name": shop["name"] ?? "نامشخص",
                   "address": shop["address"] ?? "آدرس موجود نیست",
                   "rating": shop["rating"]?.toDouble() ?? 0.0,
@@ -111,10 +113,22 @@ class _HomePageState extends State<HomePage> {
                       itemCount: shops.length,
                       itemBuilder: (context, index) {
                         final shop = shops[index];
-                        return ShopCard(
-                          name: shop["name"]!,
-                          address: shop["address"]!,
-                          rating: shop["rating"]!,
+
+                        return InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    ShopDetailsPage(shopId: shop["id"]),
+                              ),
+                            );
+                          },
+                          child: ShopCard(
+                            name: shop["name"]!,
+                            address: shop["address"]!,
+                            rating: shop["rating"]!,
+                          ),
                         );
                       },
                     );
@@ -153,7 +167,7 @@ class ShopCard extends StatelessWidget {
         child: Column(
           children: [
             Container(
-              height: 200, // Adjusted height for gray placeholder
+              height: 200,
               width: double.infinity,
               decoration: BoxDecoration(
                 color: Colors.grey[300],
