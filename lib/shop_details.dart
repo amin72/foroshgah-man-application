@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:foroshgahman_application/product_details.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -240,66 +241,78 @@ class _ShopDetailsPageState extends State<ShopDetailsPage>
                 : const SizedBox.shrink();
           }
 
-          var product = products[index];
-          return Card(
-            margin: const EdgeInsets.only(bottom: 16.0),
-            elevation: 3,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Product Image Placeholder
-                  Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    child: const Center(
-                      child: Icon(Icons.image, color: Colors.grey, size: 40),
-                    ),
+          final product = products[index];
+
+          return GestureDetector(
+            onTap: () {
+              // Navigate to ProductDetailsPage
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ProductDetailsPage(
+                    productId: product['id'],
                   ),
-                  const SizedBox(width: 16),
-                  // Product Details
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Product Name
-                        Text(
-                          product['name'] ?? 'نامشخص',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                ),
+              );
+            },
+            child: Card(
+              margin: const EdgeInsets.only(bottom: 16.0),
+              elevation: 3,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Product Image Placeholder
+                    Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: const Center(
+                        child: Icon(Icons.image, color: Colors.grey, size: 40),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    // Product Details
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Product Name
+                          Text(
+                            product['name'] ?? 'نامشخص',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-
-                        const SizedBox(height: 8),
-
-                        // Product Price
-                        Text(
+                          const SizedBox(height: 8),
+                          // Product Price
+                          Text(
                             "قیمت: ${product['price'] != null ? _formatPrice(product['price']) : 'نامشخص'}",
                             style: const TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.w500)),
-
-                        const SizedBox(height: 8),
-                        // Product Category
-                        Text(
-                          "دسته‌بندی: ${product['category'] ?? 'نامشخص'}",
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.blueGrey,
+                                fontSize: 16, fontWeight: FontWeight.w500),
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 8),
+                          // Product Category
+                          Text(
+                            "دسته‌بندی: ${product['category'] ?? 'نامشخص'}",
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.blueGrey,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           );
