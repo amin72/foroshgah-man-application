@@ -59,9 +59,13 @@ class _InitialScreenState extends State<InitialScreen> {
     final accessToken = prefs.getString('access_token');
 
     if (accessToken != null && accessToken.isNotEmpty) {
-      Navigator.of(context).pushReplacementNamed('/home');
+      if (mounted) {
+        Navigator.of(context).pushReplacementNamed('/home');
+      }
     } else {
-      Navigator.of(context).pushReplacementNamed('/login');
+      if (mounted) {
+        Navigator.of(context).pushReplacementNamed('/login');
+      }
     }
   }
 

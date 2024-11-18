@@ -11,6 +11,7 @@ class ShopDetailsPage extends StatefulWidget {
   const ShopDetailsPage({super.key, required this.shopId});
 
   @override
+  // ignore: library_private_types_in_public_api
   _ShopDetailsPageState createState() => _ShopDetailsPageState();
 }
 
@@ -65,10 +66,12 @@ class _ShopDetailsPageState extends State<ShopDetailsPage>
         shopDetails = json.decode(utf8.decode(response.bodyBytes));
       });
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('بارگیری اطلاعات فروشگاه با شکست مواجه شد.')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('بارگیری اطلاعات فروشگاه با شکست مواجه شد.')),
+        );
+      }
     }
   }
 
@@ -106,9 +109,12 @@ class _ShopDetailsPageState extends State<ShopDetailsPage>
       setState(() {
         isLoadingProducts = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('بارگیری محصولات با شکست مواجه شد.')),
-      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('بارگیری محصولات با شکست مواجه شد.')),
+        );
+      }
     }
   }
 
@@ -235,14 +241,76 @@ class _ShopDetailsPageState extends State<ShopDetailsPage>
           }
 
           var product = products[index];
-          return ListTile(
-            leading: Icon(Icons.shopping_basket),
-            title: Text(product['name'] ?? 'نامشخص'),
-            subtitle: Text("قیمت: ${product['price'] ?? 'نامشخص'}"),
+          return Card(
+            margin: const EdgeInsets.only(bottom: 16.0),
+            elevation: 3,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Product Image Placeholder
+                  Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: const Center(
+                      child: Icon(Icons.image, color: Colors.grey, size: 40),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  // Product Details
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Product Name
+                        Text(
+                          product['name'] ?? 'نامشخص',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+
+                        const SizedBox(height: 8),
+
+                        // Product Price
+                        Text(
+                            "قیمت: ${product['price'] != null ? _formatPrice(product['price']) : 'نامشخص'}",
+                            style: const TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w500)),
+
+                        const SizedBox(height: 8),
+                        // Product Category
+                        Text(
+                          "دسته‌بندی: ${product['category'] ?? 'نامشخص'}",
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.blueGrey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
           );
         },
       ),
     );
+  }
+
+  String _formatPrice(num price) {
+    final formatter = NumberFormat('#,###', 'en_US');
+    return formatter.format(price);
   }
 
   String _formatDate(String? date) {

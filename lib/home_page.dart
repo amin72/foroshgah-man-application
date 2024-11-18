@@ -22,12 +22,14 @@ class _HomePageState extends State<HomePage> {
 
   Future<List<Map<String, dynamic>>> _checkTokenAndFetchShops() async {
     final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('access_token');
+    final token = prefs.getString('access_token') ?? '';
 
     // Redirect to login if no token is found
-    if (token == null) {
-      Navigator.of(context).pushReplacementNamed('/login');
-      throw Exception('User not logged in');
+    if (token == '') {
+      if (mounted) {
+        Navigator.of(context).pushReplacementNamed('/login');
+        throw Exception('User not logged in');
+      }
     }
 
     // Token exists, fetch shops
@@ -60,14 +62,18 @@ class _HomePageState extends State<HomePage> {
                 })
             .toList();
       } else if (response.statusCode == 401) {
-        Navigator.of(context).pushReplacementNamed('/login');
-        throw Exception('Unauthorized');
+        if (mounted) {
+          Navigator.of(context).pushReplacementNamed('/login');
+          throw Exception('Unauthorized');
+        }
       } else {
         throw Exception('Failed to load shops');
       }
     } catch (error) {
       throw Exception('Error fetching shops: $error');
     }
+
+    throw Exception('Token is null. Cannot fetch shops.');
   }
 
   @override
