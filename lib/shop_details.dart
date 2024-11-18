@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:foroshgahman_application/product_details.dart';
+import 'base_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -121,28 +122,29 @@ class _ShopDetailsPageState extends State<ShopDetailsPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("جزئیات فروشگاه"),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: "جزئیات"),
-            Tab(text: "محصولات"),
-          ],
+    return BasePage(
+      currentIndex: 0,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text("جزئیات فروشگاه"),
+          bottom: TabBar(
+            controller: _tabController,
+            tabs: const [
+              Tab(text: "جزئیات"),
+              Tab(text: "محصولات"),
+            ],
+          ),
         ),
+        body: shopDetails == null
+            ? const Center(child: CircularProgressIndicator())
+            : TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildShopDetailsTab(),
+                  _buildProductsTab(),
+                ],
+              ),
       ),
-      body: shopDetails == null
-          ? const Center(child: CircularProgressIndicator())
-          : TabBarView(
-              controller: _tabController,
-              children: [
-                // Tab 1: Shop Details
-                _buildShopDetailsTab(),
-                // Tab 2: Shop Products
-                _buildProductsTab(),
-              ],
-            ),
     );
   }
 
@@ -151,7 +153,6 @@ class _ShopDetailsPageState extends State<ShopDetailsPage>
       padding: const EdgeInsets.all(16.0),
       child: ListView(
         children: [
-          // Placeholder for shop image
           Container(
             height: 200,
             color: Colors.grey[300],
@@ -167,35 +168,23 @@ class _ShopDetailsPageState extends State<ShopDetailsPage>
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
-
           _buildDetailRow(
               Icons.location_on, Colors.green, "آدرس", shopDetails!['address']),
-
           const SizedBox(height: 10),
-
           _buildDetailRow(
               Icons.star, Colors.orange, "امتیاز", shopDetails!['rating']),
-
           const SizedBox(height: 10),
-
           _buildDetailRow(Icons.phone_android, Colors.blue, "شماره تماس",
               shopDetails!['mobile']),
-
           const SizedBox(height: 10),
-
           _buildDetailRow(Icons.storefront, Colors.purple, "فروشگاه حضوری",
               shopDetails!['is_physical'] ? 'بله' : 'خیر'),
-
           const SizedBox(height: 10),
-
           _buildDetailRow(Icons.category, Colors.teal, "دسته‌بندی",
               shopDetails!['category']),
-
           const SizedBox(height: 10),
-
           _buildDetailRow(Icons.calendar_today, Colors.deepOrange,
               "تاریخ پیوستن", _formatDate(shopDetails!['created_at'])),
-
           const SizedBox(height: 10),
           const Divider(thickness: 1),
           const SizedBox(height: 16),
@@ -245,7 +234,6 @@ class _ShopDetailsPageState extends State<ShopDetailsPage>
 
           return GestureDetector(
             onTap: () {
-              // Navigate to ProductDetailsPage
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -266,7 +254,6 @@ class _ShopDetailsPageState extends State<ShopDetailsPage>
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Product Image Placeholder
                     Container(
                       width: 100,
                       height: 100,
@@ -279,12 +266,10 @@ class _ShopDetailsPageState extends State<ShopDetailsPage>
                       ),
                     ),
                     const SizedBox(width: 16),
-                    // Product Details
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Product Name
                           Text(
                             product['name'] ?? 'نامشخص',
                             style: const TextStyle(
@@ -293,14 +278,12 @@ class _ShopDetailsPageState extends State<ShopDetailsPage>
                             ),
                           ),
                           const SizedBox(height: 8),
-                          // Product Price
                           Text(
                             "قیمت: ${product['price'] != null ? _formatPrice(product['price']) : 'نامشخص'}",
                             style: const TextStyle(
                                 fontSize: 16, fontWeight: FontWeight.w500),
                           ),
                           const SizedBox(height: 8),
-                          // Product Category
                           Text(
                             "دسته‌بندی: ${product['category'] ?? 'نامشخص'}",
                             style: const TextStyle(

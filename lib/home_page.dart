@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:foroshgahman_application/shop_details.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'base_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -78,11 +79,9 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('خانه'),
-      ),
-      body: Padding(
+    return BasePage(
+      currentIndex: 0, // Index for "Home" in BottomNavigationBar
+      child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

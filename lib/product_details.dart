@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'base_page.dart';
 
 class ProductDetailsPage extends StatefulWidget {
   final String productId;
@@ -10,7 +11,6 @@ class ProductDetailsPage extends StatefulWidget {
   const ProductDetailsPage({super.key, required this.productId});
 
   @override
-  // ignore: library_private_types_in_public_api
   _ProductDetailsPageState createState() => _ProductDetailsPageState();
 }
 
@@ -27,7 +27,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     _fetchProductDetails();
   }
 
-  // Fetch product details from the API
   Future<void> _fetchProductDetails() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('access_token');
@@ -44,8 +43,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         final data = json.decode(utf8.decode(response.bodyBytes));
 
         setState(() {
-          productImages =
-              List<String>.from(data['images'] ?? []); // List of image URLs
+          productImages = List<String>.from(data['images'] ?? []);
           productName = data['name'] ?? 'نام محصول';
           productPrice =
               data['price'] != null ? '${data['price']} تومان' : 'نامشخص';
@@ -54,7 +52,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
           productCategory = data['category'] ?? 'بدون دسته بندی';
         });
       } else {
-        // Handle API error response
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('خطا در بارگذاری اطلاعات محصول')),
@@ -62,7 +59,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         }
       }
     } catch (e) {
-      // Handle any exceptions
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('خطا در برقراری ارتباط با سرور')),
@@ -73,43 +69,35 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
-    // If no images available, show a placeholder
     final List<Widget> carouselItems = productImages.isEmpty
         ? [_buildBlankImage(), _buildBlankImage(), _buildBlankImage()]
         : productImages
             .map((imageUrl) => _buildImageSliderItem(imageUrl))
             .toList();
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("جزئیات محصول"),
-      ),
-      body: SingleChildScrollView(
+    return BasePage(
+        currentIndex: 0,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Image Slider
               if (carouselItems.isNotEmpty)
                 CarouselSlider(
                   options: CarouselOptions(
                     height: 250.0,
                     enlargeCenterPage: true,
-                    enableInfiniteScroll: false, // Disable infinite scrolling
+                    enableInfiniteScroll: false,
                   ),
                   items: carouselItems,
                 )
               else
-                // Fallback for no images
                 Container(
                   height: 250,
                   color: Colors.grey[300],
                   child: const Center(child: Text('تصویری موجود نیست')),
                 ),
               const SizedBox(height: 16),
-
-              // Product Name (Centered)
               Center(
                 child: Text(
                   productName,
@@ -118,26 +106,18 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                 ),
               ),
               const SizedBox(height: 8),
-
-              // Product Category
               Text(
                 "دسته بندی: $productCategory",
                 style: const TextStyle(fontSize: 18, color: Colors.blue),
               ),
               const SizedBox(height: 8),
-
-              // Product Price
               Text(
                 "قیمت: $productPrice",
                 style: const TextStyle(fontSize: 20, color: Colors.green),
               ),
               const SizedBox(height: 16),
-
-              // Divider
               const Divider(thickness: 1),
               const SizedBox(height: 16),
-
-              // Product Description
               const Text(
                 "توضیحات محصول",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -150,12 +130,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
               ),
             ],
           ),
-        ),
-      ),
-    );
+        ));
   }
 
-  // A helper function to display blank images
   Widget _buildBlankImage() {
     return Container(
       width: double.infinity,
@@ -170,7 +147,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
     );
   }
 
-  // A helper function to build image items for the carousel
   Widget _buildImageSliderItem(String imageUrl) {
     return Container(
       width: double.infinity,
@@ -179,7 +155,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         color: Colors.grey[300],
         borderRadius: BorderRadius.circular(10),
         image: DecorationImage(
-          image: NetworkImage(imageUrl), // Load image from URL
+          image: NetworkImage(imageUrl),
           fit: BoxFit.cover,
         ),
       ),
