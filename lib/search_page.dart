@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:foroshgahman_application/base_page.dart';
+import 'package:foroshgahman_application/shop_details.dart';
 import 'package:intl/intl.dart';
 import 'package:foroshgahman_application/product_details.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -23,12 +24,15 @@ class _SearchPageState extends State<SearchPage>
   final ScrollController _scrollController = ScrollController();
 
   List<dynamic> products = [];
+  List<dynamic> shops = [];
   bool isSearching = false;
   bool isLoadingMore = false;
   bool isLoadingProducts = false;
-  bool hasMore = true;
-  int currentPage = 1;
-  bool allProductsLoaded = false;
+  bool isLoadingShops = false;
+  bool hasMoreProducts = true;
+  bool hasMoreShops = true;
+  int currentPageProducts = 1;
+  int currentPageShops = 1;
 
   @override
   void initState() {
@@ -39,9 +43,39 @@ class _SearchPageState extends State<SearchPage>
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
               _scrollController.position.maxScrollExtent - 200 &&
-          !isLoadingMore &&
-          hasMore) {
-        _loadMoreProducts();
+          !isLoadingMore) {
+        if (_tabController.index == 0 && hasMoreProducts) {
+          _loadMoreProducts();
+        } else if (_tabController.index == 1 && hasMoreShops) {
+          _loadMoreShops();
+        }
+      }
+    });
+
+    // Add listener to detect tab changes
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        final query = _searchController.text;
+        if (query.isNotEmpty) {
+          setState(() {
+            isSearching = true; // Show loading icon
+          });
+
+          // Trigger the relevant API based on the active tab
+          if (_tabController.index == 0) {
+            _fetchProducts(query, page: currentPageProducts).then((_) {
+              setState(() {
+                isSearching = false; // Hide loading icon after data fetch
+              });
+            });
+          } else if (_tabController.index == 1) {
+            _fetchShops(query, page: currentPageShops).then((_) {
+              setState(() {
+                isSearching = false; // Hide loading icon after data fetch
+              });
+            });
+          }
+        }
       }
     });
   }
@@ -69,12 +103,19 @@ class _SearchPageState extends State<SearchPage>
   Future<void> _performSearch(String query) async {
     setState(() {
       isSearching = true;
-      currentPage = 1; // Reset pagination
-      hasMore = true; // Reset the "has more" flag
-      products.clear(); // Clear previous results
+      currentPageProducts = 1;
+      currentPageShops = 1;
+      hasMoreProducts = true;
+      hasMoreShops = true;
+      products.clear();
+      shops.clear();
     });
 
-    await _fetchProducts(query, page: currentPage);
+    if (_tabController.index == 0) {
+      await _fetchProducts(query, page: currentPageProducts);
+    } else {
+      await _fetchShops(query, page: currentPageShops);
+    }
 
     setState(() {
       isSearching = false;
@@ -101,10 +142,42 @@ class _SearchPageState extends State<SearchPage>
 
         setState(() {
           if (data.isEmpty) {
-            hasMore = false; // No more data to load
+            hasMoreProducts = false;
           } else {
             products.addAll(data);
-            // productResults.addAll(data.map((item) => item['name'].toString()));
+          }
+        });
+      } else {
+        _handleError();
+      }
+    } catch (e) {
+      _handleError();
+    }
+  }
+
+  Future<void> _fetchShops(String query, {int page = 1}) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('access_token') ?? '';
+
+      final shopUrl =
+          Uri.parse('http://localhost:8101/v1/shop/search?page=$page&q=$query');
+
+      final headers = {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      };
+
+      final response = await http.get(shopUrl, headers: headers);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(utf8.decode(response.bodyBytes))['items'];
+
+        setState(() {
+          if (data.isEmpty) {
+            hasMoreShops = false;
+          } else {
+            shops.addAll(data);
           }
         });
       } else {
@@ -122,10 +195,25 @@ class _SearchPageState extends State<SearchPage>
       isLoadingMore = true;
     });
 
-    await _fetchProducts(_searchController.text, page: currentPage + 1);
+    await _fetchProducts(_searchController.text, page: currentPageProducts + 1);
 
     setState(() {
-      currentPage += 1;
+      currentPageProducts += 1;
+      isLoadingMore = false;
+    });
+  }
+
+  void _loadMoreShops() async {
+    if (_searchController.text.length < 2) return;
+
+    setState(() {
+      isLoadingMore = true;
+    });
+
+    await _fetchShops(_searchController.text, page: currentPageShops + 1);
+
+    setState(() {
+      currentPageShops += 1;
       isLoadingMore = false;
     });
   }
@@ -134,7 +222,6 @@ class _SearchPageState extends State<SearchPage>
     setState(() {
       isSearching = false;
       isLoadingMore = false;
-      hasMore = false;
     });
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('خطا در برقراری ارتباط با سرور')),
@@ -174,15 +261,8 @@ class _SearchPageState extends State<SearchPage>
               child: TabBarView(
                 controller: _tabController,
                 children: [
-                  // Products Tab
                   _buildProductsTab(),
-                  // Shops Tab (Placeholder for now)
-                  const Center(
-                    child: Text(
-                      'در اینجا فروشگاه‌ها نمایش داده می‌شوند.',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ),
+                  _buildShopsTab(),
                 ],
               ),
             ),
@@ -193,20 +273,22 @@ class _SearchPageState extends State<SearchPage>
   }
 
   Widget _buildProductsTab() {
+    if (isSearching) {
+      // Show loading icon during data fetch
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: ListView.builder(
         controller: _scrollController,
-        itemCount: products.length + (allProductsLoaded ? 0 : 1),
+        itemCount: products.length,
         itemBuilder: (context, index) {
-          if (index == products.length) {
-            return isLoadingProducts
-                ? const Center(child: CircularProgressIndicator())
-                : const SizedBox.shrink();
+          if (index >= products.length) {
+            return const SizedBox.shrink();
           }
 
           final product = products[index];
-
           return GestureDetector(
             onTap: () {
               Navigator.push(
@@ -261,6 +343,98 @@ class _SearchPageState extends State<SearchPage>
                           const SizedBox(height: 8),
                           Text(
                             "دسته‌بندی: ${product['category'] ?? 'نامشخص'}",
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.blueGrey,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildShopsTab() {
+    if (isSearching) {
+      // Show loading icon during data fetch
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: ListView.builder(
+        controller: _scrollController,
+        itemCount: shops.length,
+        itemBuilder: (context, index) {
+          if (index >= shops.length) {
+            return const SizedBox.shrink();
+          }
+
+          final shop = shops[index];
+          return GestureDetector(
+            onTap: () {
+              // Navigate to the ShopDetailsPage when a shop is tapped
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ShopDetailsPage(
+                    shopId: shop['id'], // Pass shop ID or other identifier
+                  ),
+                ),
+              );
+            },
+            child: Card(
+              margin: const EdgeInsets.only(bottom: 16.0),
+              elevation: 3,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: const Center(
+                        child: Icon(Icons.store, color: Colors.grey, size: 40),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            shop['name'] ?? 'نامشخص',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            "آدرس: ${shop['address'] ?? 'نامشخص'}",
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.blueGrey,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            "دسته‌بندی: ${shop['category'] ?? 'نامشخص'}",
                             style: const TextStyle(
                               fontSize: 14,
                               color: Colors.blueGrey,
