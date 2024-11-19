@@ -9,6 +9,7 @@ class BasePage extends StatefulWidget {
   const BasePage({super.key, required this.child, required this.currentIndex});
 
   @override
+  // ignore: library_private_types_in_public_api
   _BasePageState createState() => _BasePageState();
 }
 

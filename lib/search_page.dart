@@ -11,6 +11,7 @@ class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _SearchPageState createState() => _SearchPageState();
 }
 
@@ -19,7 +20,7 @@ class _SearchPageState extends State<SearchPage>
   late TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
   Timer? _debounce;
-  ScrollController _scrollController = ScrollController();
+  final ScrollController _scrollController = ScrollController();
 
   List<dynamic> products = [];
   bool isSearching = false;
