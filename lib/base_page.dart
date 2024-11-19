@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:foroshgahman_application/home_page.dart';
+import 'package:foroshgahman_application/search_page.dart';
 
 class BasePage extends StatefulWidget {
   final Widget child; // Content of the specific page
@@ -15,15 +17,24 @@ class _BasePageState extends State<BasePage> {
     // Navigate to the selected page
     if (index != widget.currentIndex) {
       switch (index) {
-        case 0:
-          Navigator.pushReplacementNamed(context, '/home');
+        case 0: // Open home page
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const HomePage()),
+          );
+
           break;
-        // case 1:
-        //   Navigator.pushReplacementNamed(context, '/search');
-        //   break;
-        // case 2:
-        //   Navigator.pushReplacementNamed(context, '/profile');
-        //   break;
+
+        case 1: // Open search page
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const SearchPage()),
+          );
+          break;
+
+        case 2: // Open profile page
+          Navigator.pushReplacementNamed(context, '/profile');
+          break;
       }
     }
   }
