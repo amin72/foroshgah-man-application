@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:foroshgahman_application/home_page.dart';
-import 'package:foroshgahman_application/search_page.dart';
+import 'package:foroshgahman_application/page/home.dart';
+import 'package:foroshgahman_application/page/search.dart';
+import 'package:foroshgahman_application/page/profile.dart';
 
-class BasePage extends StatefulWidget {
+class BaseWidget extends StatefulWidget {
   final Widget child; // Content of the specific page
   final int currentIndex; // Index of the selected tab
 
-  const BasePage({super.key, required this.child, required this.currentIndex});
+  const BaseWidget(
+      {super.key, required this.child, required this.currentIndex});
 
   @override
   // ignore: library_private_types_in_public_api
-  _BasePageState createState() => _BasePageState();
+  _BaseWidgetState createState() => _BaseWidgetState();
 }
 
-class _BasePageState extends State<BasePage> {
+class _BaseWidgetState extends State<BaseWidget> {
   void _onTabTapped(int index) {
     // Navigate to the selected page
     if (index != widget.currentIndex) {
@@ -23,7 +25,6 @@ class _BasePageState extends State<BasePage> {
             context,
             MaterialPageRoute(builder: (context) => const HomePage()),
           );
-
           break;
 
         case 1: // Open search page
@@ -34,7 +35,10 @@ class _BasePageState extends State<BasePage> {
           break;
 
         case 2: // Open profile page
-          Navigator.pushReplacementNamed(context, '/profile');
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const ProfilePage()),
+          );
           break;
       }
     }

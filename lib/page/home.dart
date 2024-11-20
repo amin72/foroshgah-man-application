@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:foroshgahman_application/shop_details.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'base_page.dart';
+import 'package:foroshgahman_application/page/shop_details.dart';
+import 'package:foroshgahman_application/widget/base.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -79,7 +79,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return BasePage(
+    return BaseWidget(
       currentIndex: 0, // Index for "Home" in BottomNavigationBar
       child: Padding(
         padding: const EdgeInsets.all(16.0),

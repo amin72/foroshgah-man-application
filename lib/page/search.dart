@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:foroshgahman_application/base_page.dart';
-import 'package:foroshgahman_application/shop_details.dart';
-import 'package:intl/intl.dart';
-import 'package:foroshgahman_application/product_details.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:foroshgahman_application/widget/base.dart';
+import 'package:foroshgahman_application/page/shop_details.dart';
+import 'package:foroshgahman_application/page/product_details.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -230,7 +230,7 @@ class _SearchPageState extends State<SearchPage>
 
   @override
   Widget build(BuildContext context) {
-    return BasePage(
+    return BaseWidget(
       currentIndex: 1, // Search
       child: Scaffold(
         appBar: AppBar(

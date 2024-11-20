@@ -1,9 +1,9 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'base_page.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:foroshgahman_application/widget/base.dart';
 
 class ProductDetailsPage extends StatefulWidget {
   final String productId;
@@ -76,7 +76,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             .map((imageUrl) => _buildImageSliderItem(imageUrl))
             .toList();
 
-    return BasePage(
+    return BaseWidget(
         currentIndex: 0,
         child: Padding(
           padding: const EdgeInsets.all(16.0),

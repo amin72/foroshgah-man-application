@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:foroshgahman_application/product_details.dart';
-import 'base_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import 'package:shamsi_date/shamsi_date.dart';
+import 'package:foroshgahman_application/page/product_details.dart';
+import 'package:foroshgahman_application/widget/base.dart';
 
 class ShopDetailsPage extends StatefulWidget {
   final String shopId;
@@ -122,7 +122,7 @@ class _ShopDetailsPageState extends State<ShopDetailsPage>
 
   @override
   Widget build(BuildContext context) {
-    return BasePage(
+    return BaseWidget(
       currentIndex: 0,
       child: Scaffold(
         appBar: AppBar(
