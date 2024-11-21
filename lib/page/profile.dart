@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:foroshgahman_application/widget/base.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
+import 'package:foroshgahman_application/data/province.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -15,10 +16,10 @@ class _ProfilePageState extends State<ProfilePage> {
   Map<String, dynamic>? userData;
   bool isLoading = true;
   bool isEditing = false;
+  int? selectedProvinceCode; // Tracks the selected province's code
 
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
-  final TextEditingController _provinceController = TextEditingController();
   final TextEditingController _cityController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
 
@@ -45,6 +46,7 @@ class _ProfilePageState extends State<ProfilePage> {
         final data = json.decode(utf8.decode(response.bodyBytes));
         setState(() {
           userData = data;
+          selectedProvinceCode = data['province_code'];
           _populateControllers();
           isLoading = false;
         });
@@ -59,7 +61,6 @@ class _ProfilePageState extends State<ProfilePage> {
   void _populateControllers() {
     _firstNameController.text = userData?['first_name'] ?? '';
     _lastNameController.text = userData?['last_name'] ?? '';
-    _provinceController.text = userData?['province'] ?? '';
     _cityController.text = userData?['city'] ?? '';
     _addressController.text = userData?['address'] ?? '';
   }
@@ -84,9 +85,8 @@ class _ProfilePageState extends State<ProfilePage> {
       updatedFields['last_name'] = _lastNameController.text.trim().isEmpty
           ? userData!['last_name']
           : _lastNameController.text.trim();
-      updatedFields['province'] = _provinceController.text.trim().isEmpty
-          ? userData!['province']
-          : _provinceController.text.trim();
+      updatedFields['province_code'] =
+          selectedProvinceCode ?? userData!['province_code'];
       updatedFields['city'] = _cityController.text.trim().isEmpty
           ? userData!['city']
           : _cityController.text.trim();
@@ -152,8 +152,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               userData!['profile_status'] == "shop_owner"
                                   ? 'صاحب فروشگاه'
                                   : 'کاربر عادی'),
-                          _buildEditableField(
-                              'استان', _provinceController, isEditing),
+                          _buildProvinceDropdown(),
                           _buildEditableField(
                               'شهر', _cityController, isEditing),
                           _buildEditableField(
@@ -272,6 +271,65 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       ),
     );
+  }
+
+  Widget _buildProvinceDropdown() {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8.0),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: isEditing
+            ? DropdownButton<int>(
+                value: selectedProvinceCode,
+                isExpanded: true,
+                hint: const Text('انتخاب استان'),
+                items: provinces.map((province) {
+                  return DropdownMenuItem<int>(
+                    value: province['code'],
+                    child: Text(province['name']),
+                  );
+                }).toList(),
+                onChanged: (int? value) {
+                  setState(() {
+                    selectedProvinceCode = value;
+                  });
+                },
+              )
+            : Row(
+                children: [
+                  const Text(
+                    'استان:',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blueGrey,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      _getProvinceName(selectedProvinceCode) ?? '---',
+                      style: const TextStyle(fontSize: 14),
+                      textAlign: TextAlign.end,
+                    ),
+                  ),
+                ],
+              ),
+      ),
+    );
+  }
+
+  String? _getProvinceName(int? code) {
+    if (code == null) return null;
+
+    final province = provinces.firstWhere(
+      (p) => p['code'] == code,
+      orElse: () => {'name': null}, // Return a dummy Map
+    );
+
+    return province['name'];
   }
 
   String _getValue(String? value) {
