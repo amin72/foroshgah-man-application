@@ -119,6 +119,11 @@ class _BaseWidgetState extends State<BaseWidget> {
     Navigator.pop(context); // Close the drawer
     if (route == 'خروج') {
       _confirmSignOut();
+    } else if (route == 'پروفایل') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const ProfilePage()),
+      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Navigating to $route')),
@@ -160,7 +165,7 @@ class _BaseWidgetState extends State<BaseWidget> {
                 color: Colors.blue,
               ),
               child: Text(
-                'منوی اصلی',
+                'فروشگاه من',
                 style: TextStyle(color: Colors.white, fontSize: 24),
               ),
             ),
